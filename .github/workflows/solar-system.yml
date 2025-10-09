@@ -10,15 +10,19 @@ env:
   MONGO_URI: ${{ secrets.MONGO_URI }}
 jobs:
     unit-testing:
+        strategy:
+          matrix:
+            node_version: [18,19,20]
+            os: [ubuntu-latest]
         name: Unit Testing
-        runs-on: ubuntu-latest
+        runs-on: ${{ matrix.os }}
         steps:
             - name: Checkout Repo
               uses: actions/checkout@v4
             - name: Setup NodeJs
               uses: actions/setup-node@v3
               with:
-                node-version: 22
+                node-version: ${{ matrix.node_version }}
             - name: Install Dependencies
               run: npm install
             - name: Unit Testing
