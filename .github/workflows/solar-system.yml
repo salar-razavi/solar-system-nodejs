@@ -7,7 +7,7 @@ on:
             - main
             - 'feature/*'
 env:
-  MONGO_URI: ${{ secrets.MONGO_URI }}
+  MONGO_URI: ${{ secrets.MONGO_URI}}
 jobs:
     unit-testing:
         strategy:
@@ -27,3 +27,23 @@ jobs:
               run: npm install
             - name: Unit Testing
               run: npm test
+    npm-coverage:
+      name: Code Coverage
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout Repo
+          uses: actions/checkout@v4
+        - name: Setup NodeJs
+          uses: actions/setup-node@v3
+          with:
+            node-version: 19
+        - name: Install Dependencies
+          run: npm install
+        - name: Run Coverage
+          run: npm run coverage
+        - name: Archive Test Result
+          uses: actions/upload-artifact@v3
+          with:
+            name: Code-Coverage-Result
+            path: coverage
+            retention-days: 5
