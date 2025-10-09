@@ -45,7 +45,7 @@ jobs:
           id: code-coverage-id
           # continue-on-error: true
         - name: Archive Test Result
-          if: steps.code-coverage-id == 'failure' || steps.code-coverage-id == 'success'
+          if: steps.code-coverage-id.outcome == 'failure' || steps.code-coverage-id.outcome == 'success'
           uses: actions/upload-artifact@v4
           with:
             name: Code-Coverage-Result
