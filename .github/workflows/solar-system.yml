@@ -42,8 +42,10 @@ jobs:
           run: npm install
         - name: Run Coverage
           run: npm run coverage
-          continue-on-error: true
+          id: code-coverage-id
+          # continue-on-error: true
         - name: Archive Test Result
+          if: steps.code-coverage-id == 'failure' || steps.code-coverage-id == 'success'
           uses: actions/upload-artifact@v4
           with:
             name: Code-Coverage-Result
