@@ -59,6 +59,7 @@ jobs:
     docker:
       name: Containerization
       runs-on: ubuntu-latest
+      needs: npm-coverage
       steps:
         - name: Login To DockerHub
           uses: docker/login-action@v3
