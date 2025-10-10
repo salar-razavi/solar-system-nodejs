@@ -12,10 +12,10 @@ jobs:
     unit-testing:
         strategy:
           matrix:
-            node_version: [18,19,20]
+            node_version: [19,20]
             os: [ubuntu-latest]
             exclude:
-              - node_version: [18,20]
+              - node_version: 20
         name: Unit Testing
         runs-on: ${{ matrix.os }}
         steps:
@@ -73,3 +73,9 @@ jobs:
           with:
             username: ${{ vars.DOCKER_USER }}
             password: ${{ secrets.DOCKER_PASS }}
+        - name: Docker Build And Push
+          uses: docker/build-push-action@v6
+          with:
+            context: .
+            push: true
+            tags: ${{ vars.DOCKER_USER}}/solar-system:${{ github.sha }}
