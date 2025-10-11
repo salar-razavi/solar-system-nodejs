@@ -2,10 +2,13 @@ name: Solar System Workflow
 
 on:
     workflow_dispatch: 
-     push: 
+    push: 
         branches: 
             - main
             - 'feature/*'
+permissions:
+  contents: read
+  packages: write   
 env:
   MONGO_URI: ${{ secrets.MONGO_URI}}
 jobs:
