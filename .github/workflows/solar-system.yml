@@ -48,8 +48,16 @@ jobs:
       needs: unit-testing
       name: Code Coverage
       runs-on: ubuntu-latest
+      services:
+        mongo-db:
+          image: siddharth67/mongo-db:non-prod
+          options: 
+            --name mongo
+      env:
+        MONGO_URI: 'mongodb://non-prod-user:non-prod-password@mongo:27017/superData'
       container: 
         image: node:19
+      
       steps:
         - name: Checkout Repo
           uses: actions/checkout@v4
