@@ -2,17 +2,24 @@ name: Solar System Workflow
 
 on:
     workflow_dispatch: 
-    push: 
-        branches: 
-            - main
-            - 'feature/*'
-permissions:
-  contents: read
-  packages: write   
-env:
-  MONGO_URI: ${{ secrets.MONGO_URI}}
+    # push: 
+    #     branches: 
+    #         - main
+    #         - 'feature/*'
+# permissions:
+#   contents: read
+#   packages: write   
+# env:
+#   MONGO_URI: ${{ secrets.MONGO_URI}}
 jobs:
     unit-testing:
+        services:
+          mongo-db:
+            image: siddharth67/mongo-db:non-prod
+            ports:
+              - 27017:27017
+        env:
+          MONGO_URI: 'mongodb://non-prod-usr:non-prod-password@localhost:27017/superData'
         strategy:
           matrix:
             node_version: [19,20]
@@ -70,6 +77,8 @@ jobs:
       name: Containerization
       runs-on: ubuntu-latest
       needs: npm-coverage
+      permissions: 
+        packages: write
       steps:
         - name: Checkout Repo
           uses: actions/checkout@v4
