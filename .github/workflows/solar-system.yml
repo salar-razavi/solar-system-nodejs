@@ -48,13 +48,15 @@ jobs:
       needs: unit-testing
       name: Code Coverage
       runs-on: ubuntu-latest
+      container: 
+        image: node:19
       steps:
         - name: Checkout Repo
           uses: actions/checkout@v4
-        - name: Setup NodeJs
-          uses: actions/setup-node@v3
-          with:
-            node-version: 19
+        # - name: Setup NodeJs
+        #   uses: actions/setup-node@v3
+        #   with:
+        #     node-version: 19
         - name: Cache Dependencies
           uses: actions/cache@v3
           with:
