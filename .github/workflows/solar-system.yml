@@ -9,8 +9,8 @@ on:
 # permissions:
 #   contents: read
 #   packages: write   
-# env:
-#   MONGO_URI: ${{ secrets.MONGO_URI}}
+env:
+  MONGO_URI: ${{ secrets.MONGO_URI}}
 jobs:
     unit-testing:
         services:
