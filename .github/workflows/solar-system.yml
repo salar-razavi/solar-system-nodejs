@@ -126,5 +126,5 @@ jobs:
         - name: Fetch Kubernetes Cluster Details
           run: |
             kubectl version
-            echo -----------------------------------
+            echo ------------------------------------
             kubectl get nodes
