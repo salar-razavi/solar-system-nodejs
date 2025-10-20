@@ -115,6 +115,8 @@ jobs:
       needs: docker
       runs-on: ubuntu-latest
       steps:
+        - name: Checkout Repo
+          uses: actions/checkout@v4
         - name: Setup Kubectl
           uses: azure/setup-kubectl@v4
         - name: Set KubeConfig
