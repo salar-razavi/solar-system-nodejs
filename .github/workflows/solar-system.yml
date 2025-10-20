@@ -140,4 +140,7 @@ jobs:
             K8S_IMAGE: ${{ vars.DOCKER_USER}}/solar-system:${{ github.sha }}
         - name: Show Files
           run: |
-            cat kubernetes/deployment/*.yaml
+            cat kubernetes/development/*.yaml
+        - name: Apply Deployment
+          run: |
+            kubectl apply -f kubernetes/development/*
