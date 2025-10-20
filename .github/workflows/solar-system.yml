@@ -128,3 +128,13 @@ jobs:
             kubectl version
             echo ------------------------------------
             kubectl get nodes
+        - name: Replace Token Manifest
+          uses: cschleiden/replace-tokens@v1
+          with:
+            files: '["kubernetes/development/*.yaml"]'
+          env:
+            REPLICAS: ${{ vars.REPLICAS }}
+            NAMESPACE: ${{ vars.NAMESPACE }}
+            K8S_IMAGE: ${{ vars.DOCKER_USER}}/solar-system:${{ github.sha }}
+        - name: Show Files
+          run: cat kubernetes/deployment/*.yaml
