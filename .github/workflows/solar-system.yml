@@ -145,4 +145,4 @@ jobs:
             cat kubernetes/development/*.yaml
         - name: Apply Deployment
           run: |
-            kubectl apply -f kubernetes/development/*
+            kubectl apply -f kubernetes/development/
