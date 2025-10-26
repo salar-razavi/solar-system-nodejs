@@ -143,8 +143,11 @@ jobs:
             -o yaml | kubectl apply -f -
         - name: create tls secret
           run: |
-            kubectl -n ${{ vars.NAMESPACE }} create secret tls solar --cert=${{ secrets.CERT }} \
-            --key=${{ secrets.KEY }} \
+            set -euo pipefail
+            echo "${{ secrets.CERT }}" > tls.crt
+            echo "${{ secrets.KEY }}" > tls.key
+            kubectl -n ${{ vars.NAMESPACE }} create secret tls solar --cert=tls.crt \
+            --key=tls.key \
             --dry-run=client \
             -o yaml | kubectl apply -f -
         - name: Replace Token Manifest
