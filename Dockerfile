@@ -10,7 +10,6 @@ COPY . .
 
 ENV MONGO_URI=uriPlaceholder
 
-
 EXPOSE 3000
 
 CMD [ "npm", "start" ]

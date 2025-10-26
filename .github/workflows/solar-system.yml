@@ -114,6 +114,9 @@ jobs:
     dev-deploy:
       needs: docker
       runs-on: ubuntu-latest
+      environment: 
+        name: development
+        url: https://web.tooskaoil.com
       steps:
         - name: Checkout Repo
           uses: actions/checkout@v4
@@ -125,11 +128,26 @@ jobs:
             method: kubeconfig
             kubeconfig: ${{ secrets.KUBECONFIG }}
             context: kubernetes-admin@kubernetes
-        - name: Fetch Kubernetes Cluster Details
+        - name: Check Namespace Exist
           run: |
-            kubectl version
-            echo ------------------------------------
-            kubectl get nodes
+            if ! kubectl get namespace dev > /dev/null 2>&1 ; then
+              kubectl create namespace dev
+            else
+              echo "Namespace Dev Already Exist"
+            fi
+        - name: Create Secret 
+          run: |
+            kubectl -n ${{ vars.NAMESPACE }} create secret generic mongo-db-creds --from-literal=MONGO_URI=${{ secrets.MONGO_URI }} \
+            --save-config \
+            --dry-run=client \
+            -o yaml | kubectl apply -f -
+        - name: create tls secret
+          run: |
+            kubectl -n ${{ vars.NAMESPACE }} create secret tls solar --cert=${{ secrets.CERT }} \
+            --key=${{ secrets.KEY }}
+            --save-config \
+            --dry-run=client \
+            -o yaml | kubectl apply -f -
         - name: Replace Token Manifest
           uses: cschleiden/replace-tokens@v1
           with:
@@ -140,9 +158,6 @@ jobs:
             REPLICAS: ${{ vars.REPLICAS }}
             NAMESPACE: ${{ vars.NAMESPACE }}
             K8S_IMAGE: ${{ vars.DOCKER_USER}}/solar-system:${{ github.sha }}
-        - name: Show Files
-          run: |
-            cat kubernetes/development/*.yaml
         - name: Apply Deployment
           run: |
             kubectl apply -f kubernetes/development/
