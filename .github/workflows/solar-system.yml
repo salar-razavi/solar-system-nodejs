@@ -144,7 +144,7 @@ jobs:
         - name: create tls secret
           run: |
             kubectl -n ${{ vars.NAMESPACE }} create secret tls solar --cert=${{ secrets.CERT }} \
-            --key=${{ secrets.KEY }}
+            --key=${{ secrets.KEY }} \
             --save-config \
             --dry-run=client \
             -o yaml | kubectl apply -f -
