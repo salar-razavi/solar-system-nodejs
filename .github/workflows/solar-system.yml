@@ -163,3 +163,10 @@ jobs:
         - name: Apply Deployment
           run: |
             kubectl apply -f kubernetes/development/
+    dev-integration-testing:
+      name: Development Testing
+      runs-on: ubuntu-latest
+      steps:
+        - name: Test URL Output
+          run: |
+            curl https://web.tooskaoil.com/live -s -k |jq -r .status |grep -w live
