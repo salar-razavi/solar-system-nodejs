@@ -168,7 +168,7 @@ jobs:
         - name: Get URL
           id: Get_Url
           run: |
-            echo "URL=$(kubectl get ingress -n ${{ vars.NAMESPACE }} ingress-solar -o jsonpath="{.spec.rules[0].host}")"
+            echo "URL=$(kubectl get ingress -n ${{ vars.NAMESPACE }} ingress-solar -o jsonpath="{.spec.rules[0].host}")" >> "$GITHUB_OUTPUT"
     dev-integration-testing:
       needs: dev-deploy
       name: Development Testing
@@ -176,7 +176,7 @@ jobs:
       steps:
         - name: Test URL Output
           env:
-            DEVURL: ${{needs.dev-deploy.outputs.DEV_URL}}
+            DEV_URL: ${{needs.dev-deploy.outputs.DEV_URL}}
           run: |
             echo $DEVURL
             curl https://$DEVURL/live -s -k |jq -r .status |grep -w live
