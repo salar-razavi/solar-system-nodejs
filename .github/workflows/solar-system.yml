@@ -165,7 +165,7 @@ jobs:
         - name: Apply Deployment
           run: |
             kubectl apply -f kubernetes/development/
-        - name:
+        - name: Get URL
           id: Get_Url
           run: |
             echo "URL=$(kubectl get ingress -n ${{ vars.NAMESPACE }} ingress-solar -o jsonpath="{.spec.rules[0].host}")"
@@ -176,6 +176,7 @@ jobs:
       steps:
         - name: Test URL Output
           env:
-            URL: ${{ needs.dev-deploy.outputs.DEV_URL}}
+            DEVURL: ${{needs.dev-deploy.outputs.DEV_URL}}
           run: |
-            curl https://$URL/live -s -k |jq -r .status |grep -w live
+            echo $DEVURL
+            curl https://$DEVURL/live -s -k |jq -r .status |grep -w live
