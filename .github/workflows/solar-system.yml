@@ -164,6 +164,7 @@ jobs:
           run: |
             kubectl apply -f kubernetes/development/
     dev-integration-testing:
+      needs: dev-deploy
       name: Development Testing
       runs-on: ubuntu-latest
       steps:
