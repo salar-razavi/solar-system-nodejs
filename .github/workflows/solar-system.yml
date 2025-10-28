@@ -178,5 +178,5 @@ jobs:
           env:
             DEV_URL: ${{needs.dev-deploy.outputs.DEV_URL}}
           run: |
-            echo $DEVURL
-            curl https://$DEVURL/live -s -k |jq -r .status |grep -w live
+            echo $DEV_URL
+            curl https://$DEV_URL/live -s -k |jq -r .status |grep -w live
