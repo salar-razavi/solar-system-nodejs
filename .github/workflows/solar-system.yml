@@ -114,6 +114,8 @@ jobs:
     dev-deploy:
       needs: docker
       runs-on: ubuntu-latest
+      outputs:
+        DEV_URL: ${{ steps.Get_Url.outputs.URL}}
       environment: 
         name: development
         url: https://web.tooskaoil.com
@@ -163,11 +165,17 @@ jobs:
         - name: Apply Deployment
           run: |
             kubectl apply -f kubernetes/development/
+        - name:
+          id: Get_Url
+          run: |
+            echo "URL=$(kubectl get ingress -n ${{ vars.NAMESPACE }} ingress-solar -o jsonpath="{.spec.rules[0].host}")"
     dev-integration-testing:
       needs: dev-deploy
       name: Development Testing
       runs-on: ubuntu-latest
       steps:
         - name: Test URL Output
+          env:
+            URL: ${{ needs.dev-deploy.outputs.DEV_URL}}
           run: |
-            curl https://web.tooskaoil.com/live -s -k |jq -r .status |grep -w live
+            curl https://$URL/live -s -k |jq -r .status |grep -w live
