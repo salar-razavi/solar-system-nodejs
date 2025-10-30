@@ -118,7 +118,7 @@ jobs:
         DEV_URL: ${{ steps.Get_Url.outputs.URL}}
       environment: 
         name: development
-        url: https://web.tooskaoil.com
+        url: https://${{ steps.Get_Url.outputs.URL }}
       steps:
         - name: Checkout Repo
           uses: actions/checkout@v4
