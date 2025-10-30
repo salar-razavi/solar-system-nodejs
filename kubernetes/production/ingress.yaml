@@ -6,7 +6,7 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-  - host: sabous.tooskaoil.com
+  - host: nexus.tooskaoil.com
     http:
       paths:
       - backend:
@@ -18,6 +18,5 @@ spec:
         pathType: Prefix
   tls:
   - hosts:
-    - sabous.tooskaoil.com
+    - nexus.tooskaoil.com
     secretName: solar
-
