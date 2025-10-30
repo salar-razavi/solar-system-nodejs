@@ -20,3 +20,4 @@ spec:
   - hosts:
     - web.tooskaoil.com
     secretName: solar
+
