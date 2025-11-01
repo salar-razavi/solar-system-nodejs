@@ -243,7 +243,7 @@ jobs:
             echo "URL=$(kubectl get ingress -n ${{ vars.NAMESPACE }} ingress-solar -o jsonpath="{.spec.rules[0].host}")" >> "$GITHUB_OUTPUT"
     prod-integration-testing:
       if: github.ref == 'refs/heads/main'
-      needs: docker
+      needs: prod-deploy
       name: Production Testing
       runs-on: ubuntu-latest
       steps:
