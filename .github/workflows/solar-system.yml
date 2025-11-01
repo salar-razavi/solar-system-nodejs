@@ -1,11 +1,11 @@
 name: Solar System Workflow
 
 on:
-    workflow_dispatch: 
-    # push: 
-    #     branches: 
-    #         - main
-    #         - 'feature/*'
+    # workflow_dispatch: 
+    push: 
+        branches: 
+            - main
+            - 'feature/*'
 # permissions:
 #   contents: read
 #   packages: write   
