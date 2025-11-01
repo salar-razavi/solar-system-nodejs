@@ -112,6 +112,7 @@ jobs:
                 ${{ vars.DOCKER_USER}}/solar-system:${{ github.sha }}
                 ghcr.io/${{ github.repository_owner }}/solar-system:${{ github.sha }}
     dev-deploy:
+      if: contains(github.ref,'feature/')
       needs: docker
       runs-on: ubuntu-latest
       outputs:
@@ -170,6 +171,7 @@ jobs:
           run: |
             echo "URL=$(kubectl get ingress -n ${{ vars.NAMESPACE }} ingress-solar -o jsonpath="{.spec.rules[0].host}")" >> "$GITHUB_OUTPUT"
     dev-integration-testing:
+      if: contains(github.ref,'feature/')
       needs: dev-deploy
       name: Development Testing
       runs-on: ubuntu-latest
@@ -180,3 +182,74 @@ jobs:
           run: |
             echo $DEV_URL
             curl https://$DEV_URL/live -s -k |jq -r .status |grep -w live
+    prod-deploy:
+      if: github.ref == 'refs/heads/main'
+      needs: [dev-integration-testing]
+      runs-on: ubuntu-latest
+      outputs:
+        PROD_URL: ${{ steps.Get_Url.outputs.URL}}
+      environment: 
+        name: production
+        url: https://${{ steps.Get_Url.outputs.URL }}
+      steps:
+        - name: Checkout Repo
+          uses: actions/checkout@v4
+        - name: Setup Kubectl
+          uses: azure/setup-kubectl@v4
+        - name: Set KubeConfig
+          uses: azure/k8s-set-context@v4
+          with:
+            method: kubeconfig
+            kubeconfig: ${{ secrets.KUBECONFIG }}
+            context: kubernetes-admin@kubernetes
+        - name: Check Namespace Exist
+          run: |
+            if ! kubectl get namespace ${{ vars.NAMESPACE }} > /dev/null 2>&1 ; then
+              kubectl create namespace ${{ vars.NAMESPACE }}
+            else
+              echo "Namespace ${{ vars.NAMESPACE }} Already Exist"
+            fi
+        - name: Create Secret 
+          run: |
+            kubectl -n ${{ vars.NAMESPACE }} create secret generic mongo-db-creds --from-literal=MONGO_URI=${{ secrets.MONGO_URI }} \
+            --save-config \
+            --dry-run=client \
+            -o yaml | kubectl apply -f -
+        - name: create tls secret
+          run: |
+            set -euo pipefail
+            echo "${{ secrets.CERT }}" > tls.crt
+            echo "${{ secrets.KEY }}" > tls.key
+            kubectl -n ${{ vars.NAMESPACE }} create secret tls solar --cert=tls.crt \
+            --key=tls.key \
+            --dry-run=client \
+            -o yaml | kubectl apply -f -
+        - name: Replace Token Manifest
+          uses: cschleiden/replace-tokens@v1
+          with:
+            tokenPrefix: '_{_'
+            tokenSuffix: '_}_'
+            files: '["kubernetes/production/*.yaml"]'
+          env:
+            REPLICAS: ${{ vars.REPLICAS }}
+            NAMESPACE: ${{ vars.NAMESPACE }}
+            K8S_IMAGE: ${{ vars.DOCKER_USER}}/solar-system:${{ github.sha }}
+        - name: Apply Deployment
+          run: |
+            kubectl apply -f kubernetes/production/
+        - name: Get URL
+          id: Get_Url
+          run: |
+            echo "URL=$(kubectl get ingress -n ${{ vars.NAMESPACE }} ingress-solar -o jsonpath="{.spec.rules[0].host}")" >> "$GITHUB_OUTPUT"
+    prod-integration-testing:
+      if: github.ref == 'refs/heads/main'
+      needs: prod-deploy
+      name: Production Testing
+      runs-on: ubuntu-latest
+      steps:
+        - name: Test URL Output
+          env:
+            PROD_URL: ${{needs.prod-deploy.outputs.PROD_URL}}
+          run: |
+            echo $PROD_URL
+            curl https://$PROD_URL/live -s -k |jq -r .status |grep -w live
