@@ -187,7 +187,7 @@ jobs:
       needs: [dev-integration-testing]
       runs-on: ubuntu-latest
       outputs:
-        DEV_URL: ${{ steps.Get_Url.outputs.URL}}
+        PROD_URL: ${{ steps.Get_Url.outputs.URL}}
       environment: 
         name: production
         url: https://${{ steps.Get_Url.outputs.URL }}
@@ -229,14 +229,14 @@ jobs:
           with:
             tokenPrefix: '_{_'
             tokenSuffix: '_}_'
-            files: '["kubernetes/development/*.yaml"]'
+            files: '["kubernetes/production/*.yaml"]'
           env:
             REPLICAS: ${{ vars.REPLICAS }}
             NAMESPACE: ${{ vars.NAMESPACE }}
             K8S_IMAGE: ${{ vars.DOCKER_USER}}/solar-system:${{ github.sha }}
         - name: Apply Deployment
           run: |
-            kubectl apply -f kubernetes/development/
+            kubectl apply -f kubernetes/production/
         - name: Get URL
           id: Get_Url
           run: |
@@ -244,12 +244,12 @@ jobs:
     prod-integration-testing:
       if: github.ref == 'refs/heads/main'
       needs: prod-deploy
-      name: Development Testing
+      name: Production Testing
       runs-on: ubuntu-latest
       steps:
         - name: Test URL Output
           env:
-            DEV_URL: ${{needs.dev-deploy.outputs.DEV_URL}}
+            PROD_URL: ${{needs.prod-deploy.outputs.PROD_URL}}
           run: |
-            echo $DEV_URL
-            curl https://$DEV_URL/live -s -k |jq -r .status |grep -w live
+            echo $PROD_URL
+            curl https://$PROD_URL/live -s -k |jq -r .status |grep -w live
