@@ -184,7 +184,7 @@ jobs:
             curl https://$DEV_URL/live -s -k |jq -r .status |grep -w live
     prod-deploy:
       if: github.ref == 'refs/heads/main'
-      needs: [dev-integration-testing]
+      needs: [docker]
       runs-on: ubuntu-latest
       outputs:
         PROD_URL: ${{ steps.Get_Url.outputs.URL}}
@@ -243,7 +243,7 @@ jobs:
             echo "URL=$(kubectl get ingress -n ${{ vars.NAMESPACE }} ingress-solar -o jsonpath="{.spec.rules[0].host}")" >> "$GITHUB_OUTPUT"
     prod-integration-testing:
       if: github.ref == 'refs/heads/main'
-      needs: prod-deploy
+      needs: docker
       name: Production Testing
       runs-on: ubuntu-latest
       steps:
