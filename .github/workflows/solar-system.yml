@@ -208,3 +208,21 @@ jobs:
           run: |
             echo $PROD_URL
             curl https://$PROD_URL/live -s -k |jq -r .status |grep -w live
+    slack-notification:
+      if: always()
+      name: Slack Notification
+      continue-on-error: true
+      runs-on: ubuntu-latest
+      needs: [dev-integration-testing,prod-integration-testing]
+      steps:
+        - name: Checkout Repo
+          uses: actions/checkout@v4
+        - name: Slack Config
+          uses: rtCamp/action-slack-notify@v2
+          env:
+            SLACK_COLOR: ${{ job.status }} # or a specific color like 'good' or '#ff00ff'
+            SLACK_ICON: https://github.com/rtCamp.png?size=48
+            SLACK_MESSAGE: ':hammer_and_wrench: Triggered By ${{ github.actor }}:'
+            SLACK_TITLE: Informations
+            SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+            SLACK_CHANNEL: github_action_solar_system
