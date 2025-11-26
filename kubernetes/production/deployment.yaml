@@ -5,6 +5,8 @@ metadata:
     app: solar-system
   name: solar-system
   namespace: _{_NAMESPACE_}_
+  annotations:
+    kubernetes.io/change-cause: _{_MESSAGE_}_
 spec:
   replicas: _{_REPLICAS_}_
   selector:

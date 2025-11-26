@@ -4,6 +4,8 @@ metadata:
   labels:
     app: solar-system
   name: solar-system
+  annotations:
+    kubernetes.io/change-cause: _{_MESSAGE_}_
   namespace: _{_NAMESPACE_}_
 spec:
   replicas: _{_REPLICAS_}_

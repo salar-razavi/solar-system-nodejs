@@ -124,7 +124,6 @@ jobs:
         mongo_uri: ${{ secrets.MONGO_URI }}
         cert: ${{ secrets.CERT }}
         key: ${{ secrets.key }}
-
     dev-integration-testing:
       if: contains(github.ref,'feature/')
       needs: dev-deploy
@@ -189,6 +188,7 @@ jobs:
             REPLICAS: ${{ vars.REPLICAS }}
             NAMESPACE: ${{ vars.NAMESPACE }}
             K8S_IMAGE: ${{ vars.DOCKER_USER}}/solar-system:${{ github.sha }}
+            MESSAGE: "Deploy: ${{ github.event.head_commit.message }} (by ${{ github.actor }})"
         - name: Apply Deployment
           run: |
             kubectl apply -f kubernetes/production/

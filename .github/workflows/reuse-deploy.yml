@@ -75,6 +75,7 @@ jobs:
             REPLICAS: ${{ inputs.REPLICAS }}
             NAMESPACE: ${{ inputs.NAMESPACE }}
             K8S_IMAGE: ${{ inputs.DOCKER_USER}}/solar-system:${{ github.sha }}
+            MESSAGE: "Deploy: ${{ github.event.head_commit.message }} (by ${{ github.actor }})"
         - name: Apply Deployment
           run: |
             kubectl apply -f kubernetes/development/
