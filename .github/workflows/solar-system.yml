@@ -1,4 +1,4 @@
-name: Solar System Workflow
+name: SolarSystem
 
 on:
     # workflow_dispatch: 
@@ -17,9 +17,9 @@ jobs:
           mongo-db:
             image: siddharth67/mongo-db:non-prod
             ports:
-              - 27017:27016
+              - 27017:27017
         env:
-          MONGO_URI: 'mongodb://non-prod-user:non-prod-password@localhost:27017/superData'
+          MONGO_URI: 'mongodb://non-prod-user:non-prod-password@localhost:27017/superDataa'
         strategy:
           matrix:
             node_version: [19,20]

@@ -2,7 +2,7 @@ name: CI Slack Notify
 
 on:
   workflow_run:
-    workflows: ["Solar System Workflow"]   
+    workflows: ["SolarSystem"]   
     types:
       - completed
 
