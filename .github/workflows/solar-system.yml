@@ -177,6 +177,7 @@ jobs:
               echo "color=good" >> "$GITHUB_OUTPUT"
             else
               echo "color=danger" >> "$GITHUB_OUTPUT"
+            fi
         - name: Slack Config
           uses: rtCamp/action-slack-notify@v2
           env:
