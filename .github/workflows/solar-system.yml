@@ -116,6 +116,7 @@ jobs:
       needs: docker
       uses: ./.github/workflows/reuse-deploy.yml
       with:
+        ENVIRONMENT: development
         NAMESPACE: ${{ vars.NAMESPACE }}
         REPLICAS: ${{ vars.REPLICAS }}
         DOCKER_USER: ${{ vars.DOCKER_USER }}
@@ -123,8 +124,7 @@ jobs:
         k8s_kubeconfig: ${{ secrets.KUBECONFIG }}
         mongo_uri: ${{ secrets.MONGO_URI }}
         cert: ${{ secrets.CERT }}
-        key: ${{ secrets.key }}
-
+        key: ${{ secrets.KEY }}
     dev-integration-testing:
       if: contains(github.ref,'feature/')
       needs: dev-deploy
@@ -140,62 +140,17 @@ jobs:
     prod-deploy:
       if: github.ref == 'refs/heads/main'
       needs: [docker]
-      runs-on: ubuntu-latest
-      outputs:
-        PROD_URL: ${{ steps.Get_Url.outputs.URL}}
-      environment: 
-        name: production
-        url: https://${{ steps.Get_Url.outputs.URL }}
-      steps:
-        - name: Checkout Repo
-          uses: actions/checkout@v4
-        - name: Setup Kubectl
-          uses: azure/setup-kubectl@v4
-        - name: Set KubeConfig
-          uses: azure/k8s-set-context@v4
-          with:
-            method: kubeconfig
-            kubeconfig: ${{ secrets.KUBECONFIG }}
-            context: kubernetes-admin@kubernetes
-        - name: Check Namespace Exist
-          run: |
-            if ! kubectl get namespace ${{ vars.NAMESPACE }} > /dev/null 2>&1 ; then
-              kubectl create namespace ${{ vars.NAMESPACE }}
-            else
-              echo "Namespace ${{ vars.NAMESPACE }} Already Exist"
-            fi
-        - name: Create Secret 
-          run: |
-            kubectl -n ${{ vars.NAMESPACE }} create secret generic mongo-db-creds --from-literal=MONGO_URI=${{ secrets.MONGO_URI }} \
-            --save-config \
-            --dry-run=client \
-            -o yaml | kubectl apply -f -
-        - name: create tls secret
-          run: |
-            set -euo pipefail
-            echo "${{ secrets.CERT }}" > tls.crt
-            echo "${{ secrets.KEY }}" > tls.key
-            kubectl -n ${{ vars.NAMESPACE }} create secret tls solar --cert=tls.crt \
-            --key=tls.key \
-            --dry-run=client \
-            -o yaml | kubectl apply -f -
-        - name: Replace Token Manifest
-          uses: cschleiden/replace-tokens@v1
-          with:
-            tokenPrefix: '_{_'
-            tokenSuffix: '_}_'
-            files: '["kubernetes/production/*.yaml"]'
-          env:
-            REPLICAS: ${{ vars.REPLICAS }}
-            NAMESPACE: ${{ vars.NAMESPACE }}
-            K8S_IMAGE: ${{ vars.DOCKER_USER}}/solar-system:${{ github.sha }}
-        - name: Apply Deployment
-          run: |
-            kubectl apply -f kubernetes/production/
-        - name: Get URL
-          id: Get_Url
-          run: |
-            echo "URL=$(kubectl get ingress -n ${{ vars.NAMESPACE }} ingress-solar -o jsonpath="{.spec.rules[0].host}")" >> "$GITHUB_OUTPUT"
+      uses: ./.github/workflows/reuse-deploy.yml
+      with:
+        ENVIRONMENT: production
+        NAMESPACE: ${{ vars.NAMESPACE }}
+        REPLICAS: ${{ vars.REPLICAS }}
+        DOCKER_USER: ${{ vars.DOCKER_USER }}
+      secrets: 
+        k8s_kubeconfig: ${{ secrets.KUBECONFIG }}
+        mongo_uri: ${{ secrets.MONGO_URI }}
+        cert: ${{ secrets.CERT }}
+        key: ${{ secrets.KEY }}
     prod-integration-testing:
       if: github.ref == 'refs/heads/main'
       needs: prod-deploy
@@ -204,7 +159,7 @@ jobs:
       steps:
         - name: Test URL Output
           env:
-            PROD_URL: ${{needs.prod-deploy.outputs.PROD_URL}}
+            PROD_URL: ${{needs.prod-deploy.outputs.application_url}}
           run: |
             echo $PROD_URL
             curl https://$PROD_URL/live -s -k |jq -r .status |grep -w live
@@ -215,12 +170,18 @@ jobs:
       runs-on: ubuntu-latest
       needs: [dev-integration-testing,prod-integration-testing]
       steps:
-        - name: Checkout Repo
-          uses: actions/checkout@v4
+        - name: Set Slack Color
+          id: slack-color
+          run:  |
+            if [ "${{ job.status }}" = "success" ]; then
+              echo "color=good" >> "$GITHUB_OUTPUT"
+            else
+              echo "color=danger" >> "$GITHUB_OUTPUT"
+            fi
         - name: Slack Config
           uses: rtCamp/action-slack-notify@v2
           env:
-            SLACK_COLOR: ${{ job.status }} # or a specific color like 'good' or '#ff00ff'
+            SLACK_COLOR: ${{ steps.slack-color.outputs.color }} 
             SLACK_ICON: https://github.com/rtCamp.png?size=48
             SLACK_MESSAGE: ':hammer_and_wrench: Triggered By ${{ github.actor }}:'
             SLACK_TITLE: Informations
