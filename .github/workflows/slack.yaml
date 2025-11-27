@@ -1,0 +1,35 @@
+name: CI Slack Notify
+
+on:
+  workflow_run:
+    workflows: ["Solar System Workflow"]   
+    types:
+      - completed
+
+jobs:
+  slack:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Decide color from workflow result
+        id: color
+        run: |
+          conclusion="${{ github.event.workflow_run.conclusion }}"   # success/failure/cancelled
+
+          if [ "$conclusion" = "success" ]; then
+            echo "color=good" >> "$GITHUB_OUTPUT"
+          elif [ "$conclusion" = "cancelled" ]; then
+            echo "color=warning" >> "$GITHUB_OUTPUT"
+          else
+            echo "color=danger" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Send Slack
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_COLOR:   ${{ steps.color.outputs.color }}
+          SLACK_MESSAGE: |
+            *Workflow:*  ${{ github.event.workflow_run.name }}
+            *Conclusion:* ${{ github.event.workflow_run.conclusion }}
+            *Run:* <${{ github.event.workflow_run.html_url }}|Open in GitHub>
+            *:hammer_and_wrench: Triggered By ${{ github.actor }}
