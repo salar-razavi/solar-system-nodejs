@@ -20,6 +20,9 @@ on:
             DOCKER_USER:
                 required: true
                 type: string
+            ENVIRONMENT:
+              required: true
+              type: string
         outputs:
           application_url:
             value: ${{ jobs.reuse-deploy.outputs.DEV_URL }}
@@ -30,7 +33,7 @@ jobs:
       outputs:
         DEV_URL: ${{ steps.Get_Url.outputs.URL}}
       environment: 
-        name: development
+        name: ${{ inputs.ENVIRONMENT }}
         url: https://${{ steps.Get_Url.outputs.URL }}
       steps:
         - name: Checkout Repo
@@ -59,8 +62,8 @@ jobs:
         - name: create tls secret
           run: |
             set -euo pipefail
-            echo "${{ secrets.CERT }}" > tls.crt
-            echo "${{ secrets.KEY }}" > tls.key
+            echo "${{ secrets.cert }}" > tls.crt
+            echo "${{ secrets.key }}" > tls.key
             kubectl -n ${{ inputs.NAMESPACE }} create secret tls solar --cert=tls.crt \
             --key=tls.key \
             --dry-run=client \
