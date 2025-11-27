@@ -1,5 +1,4 @@
 name: SolarSystem
-
 on:
     # workflow_dispatch: 
     push: 
