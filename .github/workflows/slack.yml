@@ -30,6 +30,7 @@ jobs:
           SLACK_COLOR:   ${{ steps.color.outputs.color }}
           SLACK_MESSAGE: |
             *Workflow:*  ${{ github.event.workflow_run.name }}
+            *Branch: ${{ github.event.workflow_run.head_branch }}
             *Conclusion:* ${{ github.event.workflow_run.conclusion }}
             *Run:* <${{ github.event.workflow_run.html_url }}|Open in GitHub>
             *:hammer_and_wrench: Triggered By ${{ github.actor }}
