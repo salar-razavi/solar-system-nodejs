@@ -32,5 +32,5 @@ jobs:
             *Conclusion:* ${{ github.event.client_payload.conclusion }}
             *Run:* <${{ github.event.client_payload.run_url }}|Open in GitHub>
             *:hammer_and_wrench: Triggered By ${{ github.actor }}
-            *Dev-URL:* ${{ github.event.client_payload.Dev_Url }}
-            *Prod-URL:* ${{ github.event.client_payload.Prod_Url }}
+            *Dev-URL:* ${{ github.event.client_payload.dev_url }}
+            *Prod-URL:* ${{ github.event.client_payload.prod_url }}
