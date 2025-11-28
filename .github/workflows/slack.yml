@@ -1,10 +1,8 @@
 name: CI Slack Notify
 
 on:
-  workflow_run:
-    workflows: ["SolarSystem"]   
-    types:
-      - completed
+  repository_dispatch:
+    types: [solar-ci-notify]
 
 jobs:
   slack:
@@ -13,7 +11,7 @@ jobs:
       - name: Decide color from workflow result
         id: color
         run: |
-          conclusion="${{ github.event.workflow_run.conclusion }}"   # success/failure/cancelledd
+          conclusion="${{ github.event.client_payload.conclusion }}"   # success/failure/cancelledd
 
           if [ "$conclusion" = "success" ]; then
             echo "color=good" >> "$GITHUB_OUTPUT"
@@ -29,8 +27,10 @@ jobs:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
           SLACK_COLOR:   ${{ steps.color.outputs.color }}
           SLACK_MESSAGE: |
-            *Workflow:*  ${{ github.event.workflow_run.name }}
-            *Branch: ${{ github.event.workflow_run.head_branch }}
-            *Conclusion:* ${{ github.event.workflow_run.conclusion }}
-            *Run:* <${{ github.event.workflow_run.html_url }}|Open in GitHub>
+            *Workflow:*  ${{ github.event.client_payload.service }}
+            *Branch:* ${{ github.event.client_payload.branch }}
+            *Conclusion:* ${{ github.event.client_payload.conclusion }}
+            *Run:* <${{ github.event.client_payload.run_url }}|Open in GitHub>
             *:hammer_and_wrench: Triggered By ${{ github.actor }}
+            *Dev-URL:* ${{ github.event.client_payload.dev_url }}
+            *Prod-URL:* ${{ github.event.client_payload.prod_url }}
