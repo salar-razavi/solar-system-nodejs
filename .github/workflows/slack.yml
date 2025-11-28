@@ -13,7 +13,7 @@ jobs:
       - name: Decide color from workflow result
         id: color
         run: |
-          conclusion="${{ github.event.workflow_run.conclusion }}"   # success/failure/cancelled
+          conclusion="${{ github.event.workflow_run.conclusion }}"   # success/failure/cancelledd
 
           if [ "$conclusion" = "success" ]; then
             echo "color=good" >> "$GITHUB_OUTPUT"
