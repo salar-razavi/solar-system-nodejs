@@ -162,3 +162,60 @@ jobs:
           run: |
             echo $PROD_URL
             curl https://$PROD_URL/live -s -k |jq -r .status |grep -w live
+    notify:
+      if: always()
+      needs: [unit-testing,npm-coverage,docker,dev-deploy,dev-integration-testing,prod-deploy,prod-integration-testing]
+      runs-on: ubuntu-latest
+      steps:
+        - name: Compute workflow conclusion
+          id: meta
+          run: |
+            results=(
+              "${{ needs.unit-testing.result }}"
+              "${{ needs.npm-coverage.result }}"
+              "${{ needs.docker.result }}"
+              "${{ needs.dev-deploy.result }}"
+              "${{ needs.dev-integration-testing.result }}"
+              "${{ needs.prod-deploy.result }}"
+              "${{ needs.prod-integration-testing.result }}"
+            )
+            echo "build:  ${results[0]}"
+            echo "test:   ${results[1]}"
+            echo "deploy: ${results[2]}"
+            echo "deploy: ${results[3]}"
+            echo "deploy: ${results[4]}"
+            echo "deploy: ${results[5]}"
+            echo "deploy: ${results[6]}"
+
+            conclusion="success"
+            had_cancelled=0
+
+            for r in "${results[@]}"; do
+              if [[ "$r" == "failure" ]]; then
+                conclusion="failure"
+                break
+              elif [[ "$r" == "cancelled" ]]; then
+                had_cancelled=1
+              fi
+            done
+            if [[ "$conclusion" == "success" && "$had_cancelled" -eq 1 ]]; then
+              conclusion="cancelled"
+            fi
+
+            echo "conclusion=$conclusion" >> "$GITHUB_OUTPUT"
+        - name: Trigger Slack Notify workflow
+          uses: peter-evans/repository-dispatch@v3
+          with:
+            token: ${{ secrets.PAT_FOR_DISPATCH }}
+            event-type: solar-ci-notify
+            client-payload: |
+              {
+                "service": "SolarSystem",
+                "branch": "${{ github.ref_name }}",
+                "sha": "${{ github.sha }}",
+                "conclusion": "${{ steps.meta.outputs.conclusion }}",
+                "run_url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
+                "Dev_Url": ${{ needs.prod-deploy.outputs.application_url }},
+                "Prod_Url": ${{ needs.prod-deploy.outputs.application_url}}
+
+              }
