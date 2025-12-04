@@ -133,6 +133,7 @@ jobs:
       if: github.ref == 'refs/heads/main'
       needs: [docker]
       uses: ./.github/workflows/reuse-deploy.yml
+      secrets: inherit
       with: 
         ENVIRONMENT: production
     prod-integration-testing:
