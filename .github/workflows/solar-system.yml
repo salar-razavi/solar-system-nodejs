@@ -9,7 +9,7 @@ on:
 #   contents: read
 #   packages: write   
 env:
-  MONGO_URI: ${{ secrets.MONGO_URI}}
+  MONGO_URI: ${{ secrets.MONGO_URI }}
 jobs:
     unit-testing:
         services:
