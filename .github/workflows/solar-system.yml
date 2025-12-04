@@ -218,3 +218,4 @@ jobs:
                 "dev_url": "${{ needs.dev-deploy.outputs.application_url }}",
                 "prod_url": "${{ needs.prod-deploy.outputs.application_url}}"
               }
+ 
