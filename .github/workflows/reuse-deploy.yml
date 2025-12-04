@@ -81,7 +81,7 @@ jobs:
             MESSAGE: "Deploy: ${{ github.event.head_commit.message }} (by ${{ github.actor }})"
         - name: Apply Deployment
           run: |
-            kubectl apply -f kubernetes/development/
+            kubectl apply -f kubernetes/${{ inputs.ENVIRONMENT }}/
         - name: Get URL
           id: Get_Url
           run: |
