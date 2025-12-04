@@ -215,6 +215,6 @@ jobs:
                 "sha": "${{ github.sha }}",
                 "conclusion": "${{ steps.meta.outputs.conclusion }}",
                 "run_url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
-                "dev_url": "${{ needs.prod-deploy.outputs.application_url }}",
+                "dev_url": "${{ needs.dev-deploy.outputs.application_url }}",
                 "prod_url": "${{ needs.prod-deploy.outputs.application_url}}"
               }
