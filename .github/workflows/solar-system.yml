@@ -140,7 +140,7 @@ jobs:
       if: github.ref == 'refs/heads/main'
       needs: [docker]
       uses: ./.github/workflows/reuse-deploy.yml
-      with:
+      with: 
         ENVIRONMENT: production
         NAMESPACE: ${{ vars.NAMESPACE }}
         REPLICAS: ${{ vars.REPLICAS }}
