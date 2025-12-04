@@ -45,7 +45,7 @@ jobs:
           run: |
             set -euo pipefail
             echo "${{ secrets.CERT }}" > tls.crt
-            echo "${{ secrets.CERT }}" > tls.key
+            echo "${{ secrets.KEY }}" > tls.key
             kubectl -n ${{ vars.NAMESPACE }} create secret tls solar --cert=tls.crt \
             --key=tls.key \
             --dry-run=client \
@@ -55,7 +55,7 @@ jobs:
           with:
             tokenPrefix: '_{_'
             tokenSuffix: '_}_'
-            files: '["kubernetes/${{ vars.ENVIRONMENT }}/*.yaml"]'
+            files: '["kubernetes/${{ inputs.ENVIRONMENT }}/*.yaml"]'
           env:
             REPLICAS: ${{ vars.REPLICAS }}
             NAMESPACE: ${{ vars.NAMESPACE }}
@@ -63,7 +63,7 @@ jobs:
             MESSAGE: "Deploy: ${{ github.event.head_commit.message }} (by ${{ github.actor }})"
         - name: Apply Deployment
           run: |
-            kubectl apply -f kubernetes/${{ vars.ENVIRONMENT }}/
+            kubectl apply -f kubernetes/${{ inputs.ENVIRONMENT }}/
         - name: Get URL
           id: Get_Url
           run: |
