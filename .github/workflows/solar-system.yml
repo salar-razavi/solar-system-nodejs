@@ -9,7 +9,7 @@ on:
 #   contents: read
 #   packages: write   
 env:
-  MONGO_URI: ${{ secrets.MONGO_URI}}
+  MONGO_URI: ${{ secrets.MONGO_URI }} 
 jobs:
     unit-testing:
         services:
@@ -116,14 +116,6 @@ jobs:
       uses: ./.github/workflows/reuse-deploy.yml
       with:
         ENVIRONMENT: development
-        NAMESPACE: ${{ vars.NAMESPACE }}
-        REPLICAS: ${{ vars.REPLICAS }}
-        DOCKER_USER: ${{ vars.DOCKER_USER }}
-      secrets: 
-        k8s_kubeconfig: ${{ secrets.KUBECONFIG }}
-        mongo_uri: ${{ secrets.MONGO_URI }}
-        cert: ${{ secrets.CERT }}
-        key: ${{ secrets.KEY }}
     dev-integration-testing:
       if: contains(github.ref,'feature/')
       needs: dev-deploy
@@ -140,16 +132,8 @@ jobs:
       if: github.ref == 'refs/heads/main'
       needs: [docker]
       uses: ./.github/workflows/reuse-deploy.yml
-      with:
+      with: 
         ENVIRONMENT: production
-        NAMESPACE: ${{ vars.NAMESPACE }}
-        REPLICAS: ${{ vars.REPLICAS }}
-        DOCKER_USER: ${{ vars.DOCKER_USER }}
-      secrets: 
-        k8s_kubeconfig: ${{ secrets.KUBECONFIG }}
-        mongo_uri: ${{ secrets.MONGO_URI }}
-        cert: ${{ secrets.CERT }}
-        key: ${{ secrets.KEY }}
     prod-integration-testing:
       if: github.ref == 'refs/heads/main'
       needs: prod-deploy

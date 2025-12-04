@@ -1,25 +1,7 @@
 name: Reusable - Deployment
 on:
     workflow_call: 
-        secrets:
-            k8s_kubeconfig:
-                required: true
-            mongo_uri:
-                required: true
-            cert:
-                required: true
-            key:
-                required: true
         inputs:
-            NAMESPACE:
-                required: true
-                type: string
-            REPLICAS:
-                required: true
-                type: string
-            DOCKER_USER:
-                required: true
-                type: string
             ENVIRONMENT:
               required: true
               type: string
@@ -44,27 +26,27 @@ jobs:
           uses: azure/k8s-set-context@v4
           with:
             method: kubeconfig
-            kubeconfig: ${{ secrets.k8s_kubeconfig }}
+            kubeconfig: ${{ secrets.KUBECONFIG }}
             context: kubernetes-admin@kubernetes
         - name: Check Namespace Exist
           run: |
-            if ! kubectl get namespace ${{ inputs.NAMESPACE }} > /dev/null 2>&1 ; then
-              kubectl create namespace ${{ inputs.NAMESPACE }}
+            if ! kubectl get namespace ${{ vars.NAMESPACE }} > /dev/null 2>&1 ; then
+              kubectl create namespace ${{ vars.NAMESPACE }}
             else
-              echo "Namespace ${{ inputs.NAMESPACE }} Already Exist"
+              echo "Namespace ${{ vars.NAMESPACE }} Already Exist"
             fi
         - name: Create Secret 
           run: |
-            kubectl -n ${{ inputs.NAMESPACE }} create secret generic mongo-db-creds --from-literal=MONGO_URI=${{ secrets.mongo_uri }} \
+            kubectl -n ${{ vars.NAMESPACE }} create secret generic mongo-db-creds --from-literal=MONGO_URI=${{ secrets.MONGO_URI }} \
             --save-config \
             --dry-run=client \
             -o yaml | kubectl apply -f -
         - name: create tls secret
           run: |
             set -euo pipefail
-            echo "${{ secrets.cert }}" > tls.crt
-            echo "${{ secrets.key }}" > tls.key
-            kubectl -n ${{ inputs.NAMESPACE }} create secret tls solar --cert=tls.crt \
+            echo "${{ secrets.CERT }}" > tls.crt
+            echo "${{ secrets.KEY }}" > tls.key
+            kubectl -n ${{ vars.NAMESPACE }} create secret tls solar --cert=tls.crt \
             --key=tls.key \
             --dry-run=client \
             -o yaml | kubectl apply -f -
@@ -75,9 +57,9 @@ jobs:
             tokenSuffix: '_}_'
             files: '["kubernetes/${{ inputs.ENVIRONMENT }}/*.yaml"]'
           env:
-            REPLICAS: ${{ inputs.REPLICAS }}
-            NAMESPACE: ${{ inputs.NAMESPACE }}
-            K8S_IMAGE: ${{ inputs.DOCKER_USER}}/solar-system:${{ github.sha }}
+            REPLICAS: ${{ vars.REPLICAS }}
+            NAMESPACE: ${{ vars.NAMESPACE }}
+            K8S_IMAGE: ${{ vars.DOCKER_USER}}/solar-system:${{ github.sha }}
             MESSAGE: "Deploy: ${{ github.event.head_commit.message }} (by ${{ github.actor }})"
         - name: Apply Deployment
           run: |
@@ -85,4 +67,4 @@ jobs:
         - name: Get URL
           id: Get_Url
           run: |
-            echo "URL=$(kubectl get ingress -n ${{ inputs.NAMESPACE }} ingress-solar -o jsonpath="{.spec.rules[0].host}")" >> "$GITHUB_OUTPUT"
+            echo "URL=$(kubectl get ingress -n ${{ vars.NAMESPACE }} ingress-solar -o jsonpath="{.spec.rules[0].host}")" >> "$GITHUB_OUTPUT"
