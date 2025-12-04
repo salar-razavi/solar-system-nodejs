@@ -1,28 +1,10 @@
 name: Reusable - Deployment
 on:
     workflow_call: 
-        # secrets:
-        #     k8s_kubeconfig:
-        #         required: true
-        #     mongo_uri:
-        #         required: true
-        #     cert:
-        #         required: true
-        #     key:
-        #         required: true
-        # inputs:
-        #     NAMESPACE:
-        #         required: true
-        #         type: string
-        #     REPLICAS:
-        #         required: true
-        #         type: string
-        #     DOCKER_USER:
-        #         required: true
-        #         type: string
-        #     ENVIRONMENT:
-        #       required: true
-        #       type: string
+        inputs:
+            ENVIRONMENT:
+              required: true
+              type: string
         outputs:
           application_url:
             value: ${{ jobs.reuse-deploy.outputs.DEV_URL }}
