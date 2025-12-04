@@ -26,7 +26,7 @@ jobs:
           uses: azure/k8s-set-context@v4
           with:
             method: kubeconfig
-            kubeconfig: ${{ secrets.k8s_kubeconfig }}
+            kubeconfig: ${{ secrets.KUBECONFIG }}
             context: kubernetes-admin@kubernetes
         - name: Check Namespace Exist
           run: |
@@ -37,15 +37,15 @@ jobs:
             fi
         - name: Create Secret 
           run: |
-            kubectl -n ${{ vars.NAMESPACE }} create secret generic mongo-db-creds --from-literal=MONGO_URI=${{ secrets.mongo_uri }} \
+            kubectl -n ${{ vars.NAMESPACE }} create secret generic mongo-db-creds --from-literal=MONGO_URI=${{ secrets.MONGO_URI }} \
             --save-config \
             --dry-run=client \
             -o yaml | kubectl apply -f -
         - name: create tls secret
           run: |
             set -euo pipefail
-            echo "${{ secrets.cert }}" > tls.crt
-            echo "${{ secrets.key }}" > tls.key
+            echo "${{ secrets.CERT }}" > tls.crt
+            echo "${{ secrets.CERT }}" > tls.key
             kubectl -n ${{ vars.NAMESPACE }} create secret tls solar --cert=tls.crt \
             --key=tls.key \
             --dry-run=client \
