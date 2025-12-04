@@ -116,14 +116,14 @@ jobs:
       uses: ./.github/workflows/reuse-deploy.yml
       with:
         ENVIRONMENT: development
-        NAMESPACE: ${{ vars.NAMESPACE }}
-        REPLICAS: ${{ vars.REPLICAS }}
-        DOCKER_USER: ${{ vars.DOCKER_USER }}
-      secrets: 
-        k8s_kubeconfig: ${{ secrets.KUBECONFIG }}
-        mongo_uri: ${{ secrets.MONGO_URI }}
-        cert: ${{ secrets.CERT }}
-        key: ${{ secrets.KEY }}
+      #   NAMESPACE: ${{ vars.NAMESPACE }}
+      #   REPLICAS: ${{ vars.REPLICAS }}
+      #   DOCKER_USER: ${{ vars.DOCKER_USER }}
+      # secrets: 
+      #   k8s_kubeconfig: ${{ secrets.KUBECONFIG }}
+      #   mongo_uri: ${{ secrets.MONGO_URI }}
+      #   cert: ${{ secrets.CERT }}
+      #   key: ${{ secrets.KEY }}
     dev-integration-testing:
       if: contains(github.ref,'feature/')
       needs: dev-deploy
